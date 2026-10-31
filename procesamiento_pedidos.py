@@ -1,11 +1,4 @@
-"""
-Práctica: Sistema de procesamiento de documentos con hilos y sincronización
-Sistemas Operativos - Ingeniería de Sistemas
 
-24 documentos son clasificados por 4 trabajadores concurrentes.
- - queue.Queue : cola segura para repartir trabajos (cada documento sale una sola vez)
- - threading.Lock : protege el diccionario compartido de resultados
-"""
 import threading
 import queue
 import time
@@ -15,11 +8,11 @@ NUM_DOCUMENTOS = 24
 NUM_TRABAJADORES = 4
 
 trabajos = queue.Queue()
-resultados = {}          # {"Trabajador-N": {"docs": int, "tamano": int}}
-registro_ids = []        # registro detallado: (trabajador, id_documento)
+resultados = {}          
+registro_ids = []       
 lock = threading.Lock()
 
-# Cargar 24 documentos en la cola: (id, tamaño simulado)
+
 for doc_id in range(1, NUM_DOCUMENTOS + 1):
     trabajos.put((doc_id, random.randint(1, 5)))
 
@@ -28,16 +21,16 @@ def trabajador(nombre):
     """Retira documentos de la cola hasta que esté vacía."""
     while True:
         try:
-            # get_nowait() es atómico: evita la carrera entre empty() y get()
+           
             doc_id, tamano = trabajos.get_nowait()
         except queue.Empty:
-            break  # salida controlada: ya no hay trabajo
+            break  
 
-        # Simular el procesamiento (fuera del lock para no serializar el trabajo)
+        
         time.sleep(tamano * 0.1)
         print(f"{nombre} procesó documento {doc_id:02d} (tamaño {tamano})")
 
-        # Sección crítica: actualizar datos compartidos
+        
         with lock:
             resultados[nombre]["docs"] += 1
             resultados[nombre]["tamano"] += tamano
